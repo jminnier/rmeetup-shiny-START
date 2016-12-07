@@ -101,6 +101,8 @@ development version: <https://kcvi.shinyapps.io/START_devel>
 
 <img src="screencast3.gif" />
 
+<!--- https://gist.github.com/dergachev/4627207 for screencast to gif --->
+
 ## Features
 
 (first read Terms & Conditions if using shinyapps.io)
