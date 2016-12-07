@@ -254,11 +254,12 @@ observe({
 - Proteomics
 - Methylation
 - Integration of different types of omics data
-- ...?
+- ...? Open to ideas, and to code!
 
 ## Thank you!
 
 
 Slides available at  <font style="text-transform: lowercase;"><http://bit.ly/rmeetup-start></font> <br>
 
+Code for slides available at <https://github.com/jminnier/rmeetup-shiny-START>
 
