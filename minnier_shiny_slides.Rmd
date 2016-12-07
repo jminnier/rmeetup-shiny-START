@@ -1,0 +1,264 @@
+---
+title: '<font style="color: red;">START App</font> <br> R Shiny Transcriptome Analysis Resource Tool'
+author: "<br> Jessica Minnier <br> email: minnier@ohsu.edu"
+date: 'Wednesday, December 7, 2016 <br> <br> <https://github.com/jminnier/STARTapp> <br> Slides available at  <font style="text-transform: lowercase;"><http://bit.ly/rmeetup-start></font> <br>'
+output: 
+  revealjs::revealjs_presentation:
+    theme: simple
+    highlight: tango
+    center: true
+    smart: true
+    fig_width: 9.5
+    fig_height: 4.5
+    fig.align: center
+    transition: fade
+    background_transition: zoom
+    slide_level: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Motivation
+
+Spreadsheets =(
+
+
+<section data-background-image="https://dl.dropboxusercontent.com/u/4238018/spreadsheetcombo.png">
+
+<p class="fragment fade-in"><img src="http://i.giphy.com/QnbnVPVWhzbCE.gif"></img>
+</p>
+</section>
+
+
+## RNA-seq gene expression
+
+<font style="color: red;">rows =</font>
+
+  - 10-100k gene identifiers <br>(or miRNAs, proteins, transcripts, exons, etc)
+
+
+<font style="color: red;">columns =</font>
+
+  - gene counts for each sample
+  - normalized data
+  - data normalized a different way
+  - data normalized another way
+  - fold changes between groups
+  - p-values
+  - adjusted p-values (q-values, FDR)
+  
+## <small>How to transform into heatmap(s)?</small>
+
+<section>
+<div style="position:relative; width:640px; height:480px; margin:0 auto;">
+  
+  <img class="fragment fade-in" src="nature14546-f3.jpg" style="position:absolute;top:0;left:0;" />
+  <p class="fragment fade-in">
+  <br>
+  <a href="http://www.nature.com/nature/journal/v524/n7564/fig_tab/nature14546_F3.html" style="position:absolute;top:0;left:0;"><br>doi:10.1038/nature14546</a>
+  </p>
+  <img class="fragment fade-in" src="heatmap_tissues_BE_HE_fdr_0.01_maxgenes_100.png" style="position:absolute;top:0;left:0;" />
+  <img class="fragment fade-in" src="heatmaplist.png" style="position:absolute;top:100;left:100;" />
+  <img class="fragment fade-in" src="biostars.png" style="position:absolute;top:0;left:0;" />
+</div>
+
+</section>
+
+## Evolution
+
+> - Started with Tableau
+>     + Tableau + R + Bioconductor = :-| (in 2013)
+> - Realization (in 2013): <font style="color: red;">Shiny</font> can do this
+> - Made one site with <font style="color: red;">one data set</font>
+> - Created site for <font style="color: red;">input data set</font>
+
+## START
+
+<font style="color: red;">S</font>hiny 
+<font style="color: red;">T</font>ranscriptome
+<font style="color: red;">A</font>nalysis
+<font style="color: red;">R</font>esource
+<font style="color: red;">T</font>ool
+
+with Jonathan Nelson, Jiri Sklenar, Anthony Barnes of <br> Knight Cardiovascular Institute (KCVI), OHSU
+
+<br> <br>
+Github: <https://github.com/jminnier/STARTapp>
+
+shinyapps.io: <https://kcvi.shinyapps.io/START>
+
+development version: <https://kcvi.shinyapps.io/START_devel>
+
+*Bioinformatics* publication: [bioinformatics.btw624](http://bioinformatics.oxfordjournals.org/content/early/2016/10/20/bioinformatics.btw624)
+
+## Very quick tour
+
+<img src="screencast2_gif.png" />
+
+## Very quick tour
+
+<img src="screencast2.gif" />
+
+## Features
+
+(first read Terms & Conditions if using shinyapps.io)
+
+> - upload "raw" count data or analyzed data (with p-values, q-values, log fold changes)
+> - boxplots, PCA plots, heatmaps
+>     + search by gene id
+>     + heatmaps of subsets of genes
+>     + filters based on significance/fold change
+> - interactive plots with `plotly` and `ggplotly()`
+>      + fast rendering (previous versions used `ggvis`)
+> - Bioconductor packages for analysis of data
+> - Save data in various formats, save plots
+>      + save RData for easier upload
+> - ...still adding new features
+
+## Shiny features
+
+## Separate code by tabs - <br>`ui.R`
+
+```{r}
+navbarPage(
+    theme = "bootstrap.min.united.updated.css",
+    #United theme from http://bootswatch.com/
+    title = "START: Shiny Transcriptome Analysis Resource Tool",
+    source("ui-tab-landing.R",local=TRUE)$value,
+    ## =========================================================================== ##
+    ## DOWNLOAD DATA TABS
+    ## =========================================================================== ##
+    source("ui-tab-inputdata.R",local=TRUE)$value,
+    source("ui-tab-filterdata.R",local=TRUE)$value,
+    ## =========================================================================== ##
+    ## Visualization TABS
+    ## =========================================================================== ##
+    source("ui-tab-samplegroupplots.R",local=TRUE)$value,
+    source("ui-tab-analysisres.R",local=TRUE)$value,
+    source("ui-tab-dotplot.R",local=TRUE)$value,
+    source("ui-tab-heatmap.R",local=TRUE)$value,
+    source("ui-tab-help.R",local=TRUE)$value,
+    source("ui-tab-news.R",local=TRUE)$value,
+    source("ui-tab-terms.R",local=TRUE)$value
+    #end definitions of tabs, now footer
+)
+```
+
+## Separate code by tabs - <br>`server.R`
+
+```{r}
+shinyServer(function(input, output,session) {
+  ## Server functions are divided by tab
+  source("server-inputdata.R",local = TRUE)
+  source("server-filterdata.R",local = TRUE)
+  source("server-dotplot.R",local = TRUE)
+  source("server-heatmap.R",local = TRUE)
+  source("server-samplegroupplots.R",local=TRUE)
+  source("server-analysisres.R",local = TRUE)
+  source("server-data.R",local = TRUE)
+})
+```
+
+## Reactivity - input data
+
+```{r}
+# after the data is uploaded or example data is selected, 
+# analyze the data
+analyzeDataReactive <- 
+  eventReactive(
+    input$upload_data,
+    ignoreNULL = FALSE, {
+      withProgress(message = "Analyzing RNA-seq data, please wait",{
+        
+        print("analysisCountDataReactive")
+        
+        ## ==================================================================================== ##
+        ## Example data
+        ## ==================================================================================== ##
+        if(input$data_file_type=="examplecounts") {
+          load('data/mousecounts_example_analysis_results.RData')
+          load('data/mousecounts_example_analyzed.RData') #example_data_results for data_results_table
+          return(list('group_names'=group_names,'sampledata'=sampledata,
+                      "results"=results,"data_long"=data_long, "geneids"=geneids,
+                      "data_results_table"=example_data_results))
+        }
+        
+        ## ==================================================================================== ##
+        ## Upload previously downloaded RData
+        ## ==================================================================================== ##
+        
+        if(input$data_file_type=="previousrdata"){
+          inRfile <- input$rdatafile
+          load(inRfile$datapath,envir=environment())
+          
+          return(list('group_names'=group_names,'sampledata'=sampledata,
+                      "results"=results,"data_long"=data_long, 
+                      "geneids"=geneids,
+                      "data_results_table"=data_results_table))
+        }
+        
+        ## ==================================================================================== ##
+        ## Else, continue on with uploading csv data
+        ## ==================================================================================== ##
+        
+        alldata <- inputDataReactive()$data
+        
+        ## ==================================================================================== ##
+        ## ANALYSIS CODE HERE
+        ## ==================================================================================== ##
+        
+        
+        print('analyze data: done')
+        
+        return(list('group_names'=group_names,'sampledata'=sampledata,
+                    "results"=lmobj_res,"data_long"=data_long, "geneids"=geneids, 
+                    "data_results_table"=data_results_table))
+      })
+    }
+)
+```
+
+## Reactive filter settings - <br> server side
+
+```{r}
+#update list of groups
+observe({
+  print("server-heatmap-update")
+  data_analyzed = analyzeDataReactive()
+  tmpgroups = data_analyzed$group_names
+  tmpdat = data_analyzed$results
+  tmptests = unique(as.character(tmpdat$test))
+  tmpdatlong = data_analyzed$data_long
+  tmpynames = tmpdatlong%>%select(-unique_id,-sampleid,-group)%>%colnames()
+  if("count"%in%tmpynames) tmpynames = tmpynames[-match("count",tmpynames)]
+  
+  updateRadioButtons(session,'heatmapvaluename', choices=sort(tmpynames,decreasing = TRUE))
+  updateCheckboxGroupInput(session,'view_group_heatmap',
+                           choices=tmpgroups, selected=tmpgroups)
+  updateSelectizeInput(session,'sel_test_heatmap',
+                       choices=tmptests, selected=NULL)
+  updateSelectizeInput(session,"fold_change_groups",
+                       choices=tmpgroups)
+  
+})
+```
+
+## Much more code
+
+![github](screenshot_github.png)
+
+## Extensions to come
+
+- Proteomics
+- Methylation
+- Integration of different types of omics data
+- ...?
+
+## Thank you!
+
+
+Slides available at  <font style="text-transform: lowercase;"><http://bit.ly/rmeetup-start></font> <br>
+
+
