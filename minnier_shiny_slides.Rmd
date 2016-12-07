@@ -99,7 +99,7 @@ development version: <https://kcvi.shinyapps.io/START_devel>
 
 ## Very quick tour
 
-<img src="screencast2.gif" />
+<img src="screencast3.gif" />
 
 ## Features
 
